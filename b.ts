@@ -314,6 +314,29 @@ const camelCase = require("camelcase");
 const ansiAlign = require("ansi-align");
 const termSize = require("term-size");
 
+const getObject = (detail) => {
+  let object;
+
+  if (typeof detail === "number") {
+    object = {
+      top: detail,
+      right: detail * 3,
+      bottom: detail,
+      left: detail * 3,
+    };
+  } else {
+    object = {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+      ...detail,
+    };
+  }
+
+  return object;
+};
+
 const getBorderChars = (borderStyle) => {
   const sides = [
     "topLeft",

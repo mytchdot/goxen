@@ -2,6 +2,11 @@ package goxen
 
 import "regexp"
 
+const (
+	NL  = "\n"
+	PAD = " "
+)
+
 type Box struct {
 	TopRight    string
 	TopLeft     string
