@@ -7,9 +7,66 @@ import (
 	"strings"
 
 	"github.com/mattn/go-runewidth"
-	"github.com/mytchmason/ansialign"
 	"golang.org/x/term"
 )
+
+type AlignOptions struct {
+	Align string
+	Split string
+	Pad   string
+}
+
+func halfDiff(maxWidth int, curWidth int) int {
+	newNum := (maxWidth - curWidth) / 2
+	return int(float64(newNum))
+}
+func fullDiff(maxWidth int, curWidth int) int {
+	newNum := maxWidth - curWidth
+	return int(float64(newNum))
+}
+func Align(text string, opts AlignOptions) string {
+	if text == "" {
+		return text
+	}
+
+	if opts.Align != "" {
+		opts.Align = "center"
+	}
+	if opts.Split != "" {
+		opts.Split = "\n"
+	}
+	if opts.Pad != "" {
+		opts.Pad = ` `
+	}
+
+	// short-circuit `align: 'left'` as no-op
+	if opts.Align == "left" {
+		return text
+	}
+
+	newText := strings.Split(text, opts.Split)
+
+	maxWidth := 0
+
+	var width int
+	var widthDiff int
+	var strSlice []string
+
+	for _, line := range newText {
+		str := string(line)
+		width = runewidth.StringWidth(str)
+		maxWidth = int(math.Max(float64(width), float64(maxWidth)))
+		if opts.Align != "right" {
+			widthDiff = halfDiff(maxWidth, width) + 1
+		} else {
+			widthDiff = fullDiff(maxWidth, width) + 1
+		}
+
+		mfrSlice := strings.Join(fillSlice(widthDiff, opts.Pad), "") + str
+		strSlice = append(strSlice, mfrSlice)
+	}
+	return strings.Join(strSlice, opts.Split)
+}
 
 func fillSlice(n int, s string) []string {
 	var slice []string
@@ -90,7 +147,7 @@ func Goxen(message string, options BoxOptions) string {
 	paddingTop := options.PaddingTop       // See TODO - Padding [X,[Y]]
 	paddingBottom := options.PaddingBottom // See TODO - Padding [X,[Y]]
 
-	message = ansialign.Align(message, ansialign.AlignOptions{
+	message = Align(message, AlignOptions{
 		Align: options.Align,
 	})
 
